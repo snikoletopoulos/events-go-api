@@ -1,6 +1,11 @@
 package models
 
-import "example.com/events-rest-api/db"
+import (
+	"errors"
+
+	"example.com/events-rest-api/db"
+	"example.com/events-rest-api/utils"
+)
 
 type User struct {
 	ID       int64
@@ -17,11 +22,35 @@ func (user *User) Save() error {
 	}
 	defer statement.Close()
 
-	result, err := statement.Exec(user.Email, user.Password)
+	hashedPassword, err := utils.HashPassword(user.Password)
+	if err != nil {
+		return err
+	}
+
+	result, err := statement.Exec(user.Email, hashedPassword)
 	if err != nil {
 		return err
 	}
 
 	user.ID, err = result.LastInsertId()
 	return err
+}
+
+func (user *User) ValidateCredentials() error {
+	row := db.DB.QueryRow("SELECT id, password FROM users WHERE email = ?", user.Email)
+
+	var userPassword string
+	if err := row.Scan(&user.ID, &userPassword); err != nil {
+		return errors.New("invalid credentials")
+	}
+
+	isPasswordValid := utils.ComparePasswordHash(user.Password, userPassword)
+
+	if !isPasswordValid {
+		return errors.New("invalid credentials")
+	}
+
+	user.Password = userPassword
+
+	return nil
 }
