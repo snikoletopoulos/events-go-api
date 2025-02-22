@@ -3,7 +3,7 @@ package middlewares
 import (
 	"net/http"
 
-	"example.com/events-rest-api/utils"
+	"events-rest-api/utils"
 	"github.com/gin-gonic/gin"
 )
 

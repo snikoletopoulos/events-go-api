@@ -3,8 +3,8 @@ package routes
 import (
 	"net/http"
 
-	"example.com/events-rest-api/models"
-	"example.com/events-rest-api/utils"
+	"events-rest-api/models"
+	"events-rest-api/utils"
 	"github.com/gin-gonic/gin"
 )
 

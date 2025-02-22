@@ -1,4 +1,4 @@
-module example.com/events-rest-api
+module events-rest-api
 
 go 1.23.1
 

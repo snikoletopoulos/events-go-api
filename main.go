@@ -1,8 +1,8 @@
 package main
 
 import (
-	"example.com/events-rest-api/db"
-	"example.com/events-rest-api/routes"
+	"events-rest-api/db"
+	"events-rest-api/routes"
 	"github.com/gin-gonic/gin"
 )
 

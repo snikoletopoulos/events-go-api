@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"example.com/events-rest-api/middlewares"
+	"events-rest-api/middlewares"
 	"github.com/gin-gonic/gin"
 )
 

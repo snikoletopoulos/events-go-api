@@ -3,7 +3,7 @@ package models
 import (
 	"time"
 
-	"example.com/events-rest-api/db"
+	"events-rest-api/db"
 )
 
 type Event struct {
