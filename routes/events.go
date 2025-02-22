@@ -35,17 +35,14 @@ func getEvent(context *gin.Context) {
 
 func createEvent(context *gin.Context) {
 	var event models.Event
-	err := context.ShouldBindJSON(&event)
-	if err != nil {
+	if err := context.ShouldBindJSON(&event); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	event.ID = 1
 	event.UserID = 1
 
-	err = event.Save()
-	if err != nil {
+	if err := event.Save(); err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create event"})
 		return
 	}
@@ -60,22 +57,20 @@ func updateEvent(context *gin.Context) {
 		return
 	}
 
-	_, err = models.GetEventByID(eventID)
-	if err != nil {
+	if _, err := models.GetEventByID(eventID); err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Could not get event"})
 		return
 	}
 
 	var updatedEvent models.Event
-	err = context.ShouldBindJSON(&updatedEvent)
-	if err != nil {
+	if err := context.ShouldBindJSON(&updatedEvent); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid event data"})
 		return
 	}
 
 	updatedEvent.ID = eventID
-	err = updatedEvent.Update()
-	if err != nil {
+	
+	if err := updatedEvent.Update(); err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create event"})
 		return
 	}
@@ -96,8 +91,8 @@ func deleteEvent(context *gin.Context) {
 		return
 	}
 
-	err = event.Delete()
-	if err != nil {
+	
+	if err := event.Delete(); err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Could not delete event"})
 		return
 	}
