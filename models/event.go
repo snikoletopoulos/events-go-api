@@ -102,3 +102,29 @@ func (event Event) Delete() error {
 
 	return err
 }
+
+func (event Event) Register(userID int64) error {
+	statement, err := db.DB.Prepare(`
+		INSERT INTO registrations (event_id, user_id) VALUES (?, ?)
+	`)
+	if err != nil {
+		return err
+	}
+	defer statement.Close()
+
+	_, err = statement.Exec(event.ID, userID)
+	return err
+}
+
+func (event Event) CancelRegistration(userID int64) error {
+	statement, err := db.DB.Prepare(`
+		DELETE FROM registrations WHERE event_id = ? AND user_id = ?
+	`)
+	if err != nil {
+		return err
+	}
+	defer statement.Close()
+
+	_, err = statement.Exec(event.ID, userID)
+	return err
+}
