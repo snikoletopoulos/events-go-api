@@ -17,7 +17,7 @@ type Event struct {
 
 var events = []Event{}
 
-func (event Event) Save() error {
+func (event *Event) Save() error {
 	statement, err := db.DB.Prepare(`
       INSERT INTO events (
         name,
@@ -37,10 +37,7 @@ func (event Event) Save() error {
 		return err
 	}
 
-	id, err := result.LastInsertId()
-
-	event.ID = id
-
+	event.ID, err = result.LastInsertId()
 	return err
 }
 
