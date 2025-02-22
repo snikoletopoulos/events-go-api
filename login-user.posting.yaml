@@ -1,0 +1,9 @@
+name: Login user
+method: POST
+url: http://localhost:8080/login
+body:
+  content: "{\n\t\"email\": \"test@test.com\",\n\t\"password\": \"test\"\n}"
+  content_type: application/json
+headers:
+- name: content-type
+  value: application/json

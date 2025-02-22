@@ -1,0 +1,6 @@
+name: Delete event
+method: DELETE
+url: http://localhost:8080/events/1
+headers:
+- name: content-type
+  value: application/json

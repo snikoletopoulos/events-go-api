@@ -1,0 +1,11 @@
+name: Create event
+method: POST
+url: http://localhost:8080/events
+body:
+  content: "{\n\t\"name\": \"Welcome week\",\n\t\"description\": \"This is a welcome\
+    \ week\",\n\t\"location\": \"UOC\",\n\t\"dateTime\": \"2020-03-01T00:00:00.000Z\"\
+    \n}"
+  content_type: application/json
+headers:
+- name: content-type
+  value: application/json

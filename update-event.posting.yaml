@@ -1,0 +1,11 @@
+name: Update event
+method: PUT
+url: http://localhost:8080/events/1
+body:
+  content: "{\n\t\"name\": \"Updated Welcome week\",\n\t\"description\": \"This is\
+    \ a new welcome week\",\n\t\"location\": \"UOC\",\n\t\"dateTime\": \"2024-03-01T00:00:00.000Z\"\
+    \n}"
+  content_type: application/json
+headers:
+- name: content-type
+  value: application/json
