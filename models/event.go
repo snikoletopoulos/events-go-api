@@ -17,11 +17,6 @@ type Event struct {
 	User        User `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" binding:""`
 }
 
-func (event *Event) Save() error {
-	result := db.DB.Create(&event)
-	return result.Error
-}
-
 func GetAllEvents() ([]Event, error) {
 	var events []Event
 	result := db.DB.Find(&events)
@@ -38,6 +33,11 @@ func FindEventByID(id uint) (*Event, error) {
 		return nil, result.Error
 	}
 	return &event, nil
+}
+
+func (event *Event) Save() error {
+	result := db.DB.Create(&event)
+	return result.Error
 }
 
 func (event Event) Update() error {
