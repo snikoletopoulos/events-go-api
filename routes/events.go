@@ -68,7 +68,7 @@ func createEvent(context *gin.Context) {
 		return
 	}
 
-	context.JSON(http.StatusCreated, gin.H{"message": "Event created successfully", "event": eventData})
+	context.JSON(http.StatusCreated, gin.H{"message": "Event created successfully", "event": event})
 }
 
 // TODO: make fields optional
