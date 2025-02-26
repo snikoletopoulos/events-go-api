@@ -1,9 +1,11 @@
 package middlewares
 
 import (
+	"fmt"
 	"net/http"
 
 	"events-rest-api/utils"
+
 	"github.com/gin-gonic/gin"
 )
 

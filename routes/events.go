@@ -1,8 +1,10 @@
 package routes
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"events-rest-api/models"
 	"github.com/gin-gonic/gin"
@@ -21,13 +23,13 @@ func getEvents(context *gin.Context) {
 }
 
 func getEvent(context *gin.Context) {
-	eventID, err := strconv.ParseInt(context.Param("id"), 10, 64)
+	eventID, err := strconv.ParseUint(context.Param("id"), 10, 64)
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid event id"})
 		return
 	}
 
-	event, err := models.GetEventByID(eventID)
+	event, err := models.FindEventByID(uint(eventID))
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Could not get event"})
 		return
@@ -36,53 +38,74 @@ func getEvent(context *gin.Context) {
 	context.JSON(http.StatusOK, event)
 }
 
+type EventBody struct {
+	Name        string    `binding:"required"`
+	Description string    `binding:"required"`
+	Location    string    `binding:"required"`
+	DateTime    time.Time `binding:"required"`
+}
+
 func createEvent(context *gin.Context) {
-	var event models.Event
-	if err := context.ShouldBindJSON(&event); err != nil {
+	var eventData EventBody
+	if err := context.ShouldBindJSON(&eventData); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	userID := context.GetInt64("userID")
-	event.UserID = userID
+	userID := context.GetUint("userID")
+	fmt.Println("🪚 userID route:", userID)
+
+	event := models.Event{
+		Name:        eventData.Name,
+		Description: eventData.Description,
+		Location:    eventData.Location,
+		DateTime:    eventData.DateTime,
+		UserID:      uint(userID),
+	}
 
 	if err := event.Save(); err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create event"})
 		return
 	}
 
-	context.JSON(http.StatusCreated, gin.H{"message": "Event created successfully", "event": event})
+	context.JSON(http.StatusCreated, gin.H{"message": "Event created successfully", "event": eventData})
 }
 
+// TODO: make fields optional
 func updateEvent(context *gin.Context) {
-	eventID, err := strconv.ParseInt(context.Param("id"), 10, 64)
+	eventID, err := strconv.ParseUint(context.Param("id"), 10, 32)
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid event id"})
 		return
 	}
 
-	event, err := models.GetEventByID(eventID)
+	event, err := models.FindEventByID(uint(eventID))
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Could not get event"})
 		return
 	}
 
-	userID := context.GetInt64("userID")
+	userID := context.GetUint("userID")
+	fmt.Println("🪚 userID:", userID)
 	if event.UserID != userID {
 		context.JSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized."})
 		return
 	}
 
-	var updatedEvent models.Event
-	if err := context.ShouldBindJSON(&updatedEvent); err != nil {
+	var eventData EventBody
+	if err := context.ShouldBindJSON(&eventData); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid event data"})
 		return
 	}
 
-	updatedEvent.ID = eventID
+	event.Name = eventData.Name
+	event.Description = eventData.Description
+	event.Location = eventData.Location
+	event.DateTime = eventData.DateTime
 
-	if err := updatedEvent.Update(); err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create event"})
+	if err := event.Update(); err != nil {
+		fmt.Println(err)
+		context.JSON(http.StatusInternalServerError, gin.H{"error": "Could not update event"})
 		return
 	}
 
@@ -90,19 +113,19 @@ func updateEvent(context *gin.Context) {
 }
 
 func deleteEvent(context *gin.Context) {
-	eventID, err := strconv.ParseInt(context.Param("id"), 10, 64)
+	eventID, err := strconv.ParseUint(context.Param("id"), 10, 64)
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid event id"})
 		return
 	}
 
-	event, err := models.GetEventByID(eventID)
+	event, err := models.FindEventByID(uint(eventID))
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Could not get event"})
 		return
 	}
 
-	userID := context.GetInt64("userID")
+	userID := context.GetUint("userID")
 	if event.UserID != userID {
 		context.JSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized."})
 		return

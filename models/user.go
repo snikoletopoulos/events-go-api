@@ -5,52 +5,51 @@ import (
 
 	"events-rest-api/db"
 	"events-rest-api/utils"
+
+	"gorm.io/gorm"
 )
 
 type User struct {
-	ID       int64
+	gorm.Model
 	Email    string `binding:"required"`
 	Password string `binding:"required"`
 }
 
-func (user *User) Save() error {
-	statement, err := db.DB.Prepare(`
-    INSERT INTO users (email, password) VALUES (?, ?)
-    `)
-	if err != nil {
-		return err
+func FindByEmail(email string) (*User, error) {
+	var user User
+	result := db.DB.Find(&user, "email = ?", email)
+	if result.Error != nil {
+		return nil, result.Error
 	}
-	defer statement.Close()
+	return &user, nil
+}
 
+func FindByID(id string) (*User, error) {
+	var user User
+	result := db.DB.Find(&user, id)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &user, nil
+}
+
+func (user *User) Save() error {
 	hashedPassword, err := utils.HashPassword(user.Password)
 	if err != nil {
 		return err
 	}
 
-	result, err := statement.Exec(user.Email, hashedPassword)
-	if err != nil {
-		return err
-	}
+	user.Password = hashedPassword
 
-	user.ID, err = result.LastInsertId()
-	return err
+	result := db.DB.Create(&user)
+	return result.Error
 }
 
-func (user *User) ValidateCredentials() error {
-	row := db.DB.QueryRow("SELECT id, password FROM users WHERE email = ?", user.Email)
-
-	var userPassword string
-	if err := row.Scan(&user.ID, &userPassword); err != nil {
-		return errors.New("invalid credentials")
-	}
-
-	isPasswordValid := utils.ComparePasswordHash(user.Password, userPassword)
-
+func (user *User) ValidateCredentials(inputPassword string) error {
+	isPasswordValid := utils.ComparePasswordHash(user.Password, inputPassword)
 	if !isPasswordValid {
 		return errors.New("invalid credentials")
 	}
-
-	user.Password = userPassword
 
 	return nil
 }

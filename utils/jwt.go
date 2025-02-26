@@ -2,6 +2,7 @@ package utils
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -9,7 +10,7 @@ import (
 
 const secretKey = "secret"
 
-func GenerateToken(userID int64, email string) (string, error) {
+func GenerateToken(userID uint, email string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"email":  email,
 		"userID": userID,
@@ -19,7 +20,7 @@ func GenerateToken(userID int64, email string) (string, error) {
 	return token.SignedString([]byte(secretKey))
 }
 
-func VerifyToken(token string) (int64, error) {
+func VerifyToken(token string) (uint, error) {
 	parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (any, error) {
 		_, ok := token.Method.(*jwt.SigningMethodHMAC)
 
@@ -42,7 +43,7 @@ func VerifyToken(token string) (int64, error) {
 		return 0, errors.New("could not parse claims")
 	}
 
-	userID := int64(claims["userID"].(float64))
+	userID := uint(claims["userID"].(float64))
 
 	return userID, nil
 }
